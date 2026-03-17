@@ -139,7 +139,54 @@ export class XxxServer {
 - `REPORT_OUTPUT_PATH` - 报告输出目录
 - `OPENCLAW_GATEWAY_URL` - OpenClaw Gateway 地址
 
+## AI 工具约束
+
+**重要**: 本项目有严格的 AI 工具使用规范。详见 [AI-GUIDELINES.md](./AI-GUIDELINES.md)
+
+### 核心原则
+
+1. **只执行明确要求的任务** - 不擅自创建文件或修改代码
+2. **不擅自扩展范围** - 完成任务后停止，不自行开始下一个
+3. **不确定先询问** - 遇到疑问先与用户确认
+4. **保护关键文件** - 修改配置文件前必须确认
+
+### 禁止操作
+
+- ❌ 随意创建新文件
+- ❌ 修改未要求修改的文件
+- ❌ 添加"可能有用"的代码
+- ❌ 重构或"优化"现有代码
+- ❌ 修改配置文件（除非明确要求）
+
+### 允许的操作
+
+- ✅ 执行用户明确要求的任务
+- ✅ 读取文件进行分析
+- ✅ 使用 Glob/Grep 搜索
+- ✅ 报告发现的问题（不自动修复）
+
+### 关键文件保护
+
+| 文件 | 修改要求 |
+|------|---------|
+| `openclaw.config.json` | ⚠️ 必须确认 |
+| `package.json` | ⚠️ 必须确认 |
+| `.env.example` | ⚠️ 必须确认 |
+| `plugins/` | ⚠️ 已完整实现 |
+| `CLAUDE.md` | ✅ 可更新 |
+| `AI-GUIDELINES.md` | ⚠️ 规范文件 |
+
+### 任务执行检查
+
+在执行任何写入操作前确认：
+1. 用户是否明确要求？
+2. 是否在允许的范围内？
+3. 是否应该先询问用户？
+
+---
+
 ## 相关文档
 
+- [AI 工具使用规范](./AI-GUIDELINES.md)
 - [设计方案](./docs/plans/2026-03-17-harmony-security-analysis-system-design.md)
 - [实现计划](./docs/plans/2026-03-17-harmony-security-analysis-implementation.md)
