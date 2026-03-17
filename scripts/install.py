@@ -162,10 +162,12 @@ def check_or_clone_mcp_adapter(project_dir):
 
     print(Colors.yellow("⚠️  MCP Adapter 未找到，正在克隆..."))
 
+    # git clone <repo> <destination_dir>
+    # destination_dir 会自动创建
     run_command([
         "git", "clone",
         "https://github.com/androidStern-personal/openclaw-mcp-adapter.git",
-        str(mcp_adapter_dir.parent)
+        str(mcp_adapter_dir)
     ])
 
     print(Colors.green("✓ MCP Adapter 克隆完成"))
