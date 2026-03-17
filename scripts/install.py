@@ -460,19 +460,38 @@ def start_gateway():
 
     import time
 
+    # 查找 openclaw 命令路径
+    openclaw_cmd = "openclaw"
+    if platform.system() == "Windows":
+        # Windows 上可能需要完整路径
+        openclaw_paths = [
+            Path(os.environ.get("USERPROFILE", "")) / "AppData" / "Roaming" / "npm" / "openclaw.cmd",
+            Path("C:/Users") / os.environ.get("USERNAME", "") / "AppData" / "Roaming" / "npm" / "openclaw.cmd",
+        ]
+        for path in openclaw_paths:
+            if path.exists():
+                openclaw_cmd = str(path)
+                break
+        else:
+            # 尝试 which 命令
+            result = run_command(["where", "openclaw"], capture=True, check=False)
+            if result:
+                openclaw_cmd = result.split('\n')[0].strip()
+
     # 后台启动
     if platform.system() == "Windows":
         log_file = Path(os.environ.get("TEMP", "/tmp")) / "openclaw-gateway.log"
         subprocess.Popen(
-            ["openclaw", "gateway"],
+            [openclaw_cmd, "gateway"],
             stdout=open(log_file, 'w'),
             stderr=subprocess.STDOUT,
-            creationflags=subprocess.CREATE_NO_WINDOW
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            shell=True
         )
     else:
         log_file = Path("/tmp/openclaw-gateway.log")
         subprocess.Popen(
-            ["openclaw", "gateway"],
+            [openclaw_cmd, "gateway"],
             stdout=open(log_file, 'w'),
             stderr=subprocess.STDOUT
         )
@@ -576,11 +595,11 @@ def main():
         # 修复配置
         fix_config()
 
+        # 配置 MCP Servers（在安装插件之前配置，避免"未配置"警告）
+        configure_mcp_servers(project_dir)
+
         # 安装插件
         install_plugins(project_dir, mcp_adapter_dir)
-
-        # 配置 MCP Servers
-        configure_mcp_servers(project_dir)
 
         # 启动 Gateway
         start_gateway()
