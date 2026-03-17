@@ -113,6 +113,48 @@ cp .env.example .env
 # vim .env
 ```
 
+### 安装 OpenClaw 插件
+
+本项目包含 OpenClaw Gateway 插件，用于在 Agent 分析任务时自动注入上下文。
+
+**方式一：使用一键安装脚本（推荐）**
+
+```bash
+# Windows
+scripts\install-openclaw-plugin.bat
+
+# Linux/macOS
+chmod +x scripts/install-openclaw-plugin.sh
+./scripts/install-openclaw-plugin.sh
+```
+
+**方式二：手动安装**
+
+```bash
+# 1. 确保已安装 OpenClaw CLI
+npm install -g @openclaw/cli
+
+# 2. 安装插件
+openclaw plugins install ./plugins/openclaw-harmony-security
+
+# 3. 启用插件
+openclaw plugins enable harmony-security
+
+# 4. 重启 Gateway
+openclaw gateway stop
+openclaw gateway
+```
+
+**验证插件安装**
+
+```bash
+# 查看插件列表
+openclaw plugins list
+
+# 应该看到：
+# │ HarmonyOS Security Analysis │ harmony-security │ loaded │ ... │
+```
+
 ### 启动 MCP Servers
 
 ```bash

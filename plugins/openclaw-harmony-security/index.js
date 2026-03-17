@@ -54,4 +54,4 @@ class HarmonySecurityPlugin {
   }
 }
 
-module.exports = HarmonySecurityPlugin;
+module.exports = (config, gateway) => new HarmonySecurityPlugin(config, gateway);

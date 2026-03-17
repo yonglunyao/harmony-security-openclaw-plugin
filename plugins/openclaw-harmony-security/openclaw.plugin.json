@@ -1,0 +1,32 @@
+{
+  "id": "harmony-security",
+  "name": "HarmonyOS Security Analysis Plugin",
+  "version": "0.1.0",
+  "description": "鸿蒙应用安全分析 OpenClaw Plugin",
+  "author": "Yonglun Yao <yonglunyao@gmail.com>",
+  "license": "MIT",
+  "entry": "index.js",
+  "hooks": {
+    "gatewayStart": "gatewayStart",
+    "beforeAgentStart": "beforeAgentStart",
+    "toolResultPersist": "toolResultPersist",
+    "agentEnd": "agentEnd"
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "sampleStorePath": {
+        "type": "string",
+        "description": "样本数据存储路径"
+      },
+      "knowledgeBasePath": {
+        "type": "string",
+        "description": "知识库路径"
+      },
+      "reportOutputPath": {
+        "type": "string",
+        "description": "报告输出路径"
+      }
+    }
+  }
+}
