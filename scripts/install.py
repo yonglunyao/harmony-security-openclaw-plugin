@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 OpenClaw Harmony Security Plugin 一键安装脚本（含 MCP Adapter 集成）
 跨平台统一安装逻辑
@@ -13,6 +14,17 @@ import platform
 from pathlib import Path
 from urllib.request import urlopen
 from tempfile import mkstemp
+
+# Windows 控制台编码修复
+if platform.system() == "Windows":
+    try:
+        import locale
+        import codecs
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+    except:
+        # 如果上述方法失败，设置环境变量
+        os.environ['PYTHONIOENCODING'] = 'utf-8'
 
 # 颜色输出（跨平台）
 class Colors:
@@ -39,7 +51,7 @@ class Colors:
         return f"{Colors.BLUE}{text}{Colors.NC}"
 
 
-def run_command(cmd, check=True, capture=False):
+def run_command(cmd, check=True, capture=False, cwd=None):
     """运行命令并返回结果"""
     print(f"  $ {' '.join(cmd)}")
     try:
@@ -49,14 +61,16 @@ def run_command(cmd, check=True, capture=False):
                 check=check,
                 capture_output=True,
                 text=True,
-                shell=platform.system() == "Windows"
+                shell=platform.system() == "Windows",
+                cwd=cwd
             )
             return result.stdout.strip()
         else:
             subprocess.run(
                 cmd,
                 check=check,
-                shell=platform.system() == "Windows"
+                shell=platform.system() == "Windows",
+                cwd=cwd
             )
     except subprocess.CalledProcessError as e:
         if check:
@@ -106,7 +120,7 @@ def check_openclaw_cli():
 
 def install_dependencies(project_dir):
     """安装项目依赖"""
-    print_step(1, 9, "安装项目依赖")
+    print_step(1, 11, "安装项目依赖")
 
     run_command(["npm", "install"], cwd=project_dir)
     print(Colors.green("✓ 依赖安装完成"))
@@ -114,7 +128,7 @@ def install_dependencies(project_dir):
 
 def build_project(project_dir):
     """构建项目"""
-    print_step(2, 9, "构建项目")
+    print_step(2, 11, "构建项目")
 
     run_command(["npm", "run", "build"], cwd=project_dir)
     print(Colors.green("✓ 项目构建完成"))
@@ -122,7 +136,7 @@ def build_project(project_dir):
 
 def create_data_directories(project_dir):
     """创建数据目录"""
-    print_step(3, 9, "创建数据目录")
+    print_step(3, 11, "创建数据目录")
 
     data_dirs = [
         project_dir / "data" / "samples",
@@ -138,7 +152,7 @@ def create_data_directories(project_dir):
 
 def check_or_clone_mcp_adapter(project_dir):
     """检查或克隆 MCP Adapter"""
-    print_step(4, 9, "检查 MCP Adapter")
+    print_step(4, 11, "检查 MCP Adapter")
 
     mcp_adapter_dir = project_dir.parent / "openclaw-mcp-adapter"
 
@@ -160,7 +174,7 @@ def check_or_clone_mcp_adapter(project_dir):
 
 def stop_gateway():
     """停止现有 Gateway"""
-    print_step(5, 9, "停止现有 Gateway (如果正在运行)")
+    print_step(5, 11, "停止现有 Gateway (如果正在运行)")
 
     run_command(["openclaw", "gateway", "stop"], check=False)
 
@@ -171,9 +185,77 @@ def stop_gateway():
     print(Colors.green("✓ Gateway 已停止"))
 
 
+def remove_old_plugins():
+    """移除旧插件目录"""
+    print()
+    print("  清理旧插件目录...")
+
+    def handle_remove_readonly(func, path, exc):
+        """处理 Windows 只读文件"""
+        import stat
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+
+    home = Path.home()
+    old_plugins = [
+        home / ".openclaw" / "extensions" / "harmony-security",
+        home / ".openclaw" / "extensions" / "openclaw-mcp-adapter"
+    ]
+
+    for plugin_path in old_plugins:
+        if plugin_path.exists():
+            try:
+                shutil.rmtree(plugin_path, onerror=handle_remove_readonly)
+                print(f"    已删除: {plugin_path.name}")
+            except Exception as e:
+                print(Colors.yellow(f"    跳过 {plugin_path.name}: {e}"))
+
+    print(Colors.green("  ✓ 清理完成"))
+
+
+def fix_config():
+    """修复配置文件"""
+    print_step(9, 11, "修复配置文件")
+
+    # 运行 doctor --fix 自动修复
+    run_command(["openclaw", "doctor", "--fix"], check=False)
+
+    # 手动清理 plugins.allow 中的无效条目
+    openclaw_config = get_openclaw_config_path()
+    if openclaw_config.exists():
+        with open(openclaw_config, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # 清理 plugins.allow 中的无效插件
+        if "plugins" in data and "allow" in data["plugins"]:
+            invalid_plugins = []
+            valid_plugins = []
+
+            # 检查哪些插件实际存在
+            ext_dir = Path.home() / ".openclaw" / "extensions"
+            for plugin_id in data["plugins"]["allow"]:
+                plugin_dir = ext_dir / plugin_id
+                if not plugin_dir.exists():
+                    invalid_plugins.append(plugin_id)
+                else:
+                    valid_plugins.append(plugin_id)
+
+            # 移除无效插件
+            for plugin_id in invalid_plugins:
+                print(f"    移除无效插件引用: {plugin_id}")
+
+            data["plugins"]["allow"] = valid_plugins
+
+            # 保存配置
+            with open(openclaw_config, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+    print(Colors.green("  ✓ 配置已修复"))
+
+
 def install_plugins(project_dir, mcp_adapter_dir):
     """安装插件"""
-    print_step(6, 9, "安装插件")
+    print_step(6, 11, "安装插件")
 
     plugin_dir = project_dir / "plugins" / "openclaw-harmony-security"
 
@@ -207,7 +289,7 @@ def install_plugins(project_dir, mcp_adapter_dir):
 
 def configure_mcp_servers(project_dir):
     """配置 MCP Servers"""
-    print_step(7, 9, "配置 MCP Servers")
+    print_step(7, 11, "配置 MCP Servers")
 
     # 转换路径为字符串，使用正斜杠（跨平台兼容）
     project_str = str(project_dir).replace("\\", "/")
@@ -372,7 +454,7 @@ def get_openclaw_config_path():
 
 def start_gateway():
     """启动 Gateway"""
-    print_step(8, 9, "启动 Gateway")
+    print_step(8, 11, "启动 Gateway")
 
     import time
 
@@ -400,7 +482,7 @@ def start_gateway():
 
 def verify_installation():
     """验证安装"""
-    print_step(9, 9, "验证安装")
+    print_step(10, 11, "验证安装")
     print()
 
     # 获取插件列表
@@ -485,6 +567,12 @@ def main():
 
         # 停止 Gateway
         stop_gateway()
+
+        # 清理旧插件
+        remove_old_plugins()
+
+        # 修复配置
+        fix_config()
 
         # 安装插件
         install_plugins(project_dir, mcp_adapter_dir)
