@@ -11,19 +11,5 @@
         "reportOutputPath": "./data/reports"
       }
     }
-  },
-  "mcpServers": {
-    "sample-store": {
-      "command": "node",
-      "args": ["dist/mcp/sample-store/index.js"]
-    },
-    "knowledge-base": {
-      "command": "node",
-      "args": ["dist/mcp/knowledge-base/index.js"]
-    },
-    "report-store": {
-      "command": "node",
-      "args": ["dist/mcp/report-store/index.js"]
-    }
   }
 }

@@ -157,6 +157,8 @@ openclaw plugins list
 
 ### 启动 MCP Servers
 
+**重要说明**: MCP Servers 需要独立启动，OpenClaw Gateway 不会自动管理它们。
+
 ```bash
 # 批量启动所有 MCP Servers
 ./scripts/start-mcp-servers.sh
@@ -166,6 +168,8 @@ node dist/mcp/sample-store/index.js
 node dist/mcp/knowledge-base/index.js
 node dist/mcp/report-store/index.js
 ```
+
+**注意**: `openclaw.config.json` 仅作为插件配置参考，请勿将其内容合并到 `~/.openclaw/openclaw.json` 中。OpenClaw 目前不支持在配置文件中直接配置 MCP Servers。
 
 ### 停止 MCP Servers
 
