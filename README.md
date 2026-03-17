@@ -114,22 +114,37 @@ npm run build
 
 ### 一键安装（推荐）
 
-使用自动安装脚本，会自动：
-1. 安装 OpenClaw 插件
-2. 克隆并安装 MCP Adapter
-3. 配置 MCP Servers
-4. 启动 Gateway
+使用 Python 统一安装脚本，自动完成所有配置：
 
 **Windows:**
 ```bash
+# 双击运行，或命令行执行
 scripts\install-openclaw-plugin.bat
 ```
 
 **Linux/macOS:**
 ```bash
+# 直接运行（会自动使用 Python 或 bash）
 chmod +x scripts/install-openclaw-plugin.sh
 ./scripts/install-openclaw-plugin.sh
+
+# 或直接使用 Python
+python3 scripts/install.py
 ```
+
+**安装脚本会自动：**
+1. ✓ 检查并安装依赖
+2. ✓ 构建项目
+3. ✓ 克隆 openclaw-mcp-adapter
+4. ✓ 安装两个插件
+5. ✓ 配置 MCP Servers（支持 Python 或 jq）
+6. ✓ 启动 Gateway
+7. ✓ 验证安装
+
+**系统要求：**
+- Python 3.6+ （推荐）
+- Node.js >= 18.0.0
+- OpenClaw CLI: `npm install -g @openclaw/cli`
 
 ### 手动安装
 
