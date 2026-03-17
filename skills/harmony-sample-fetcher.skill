@@ -1,0 +1,74 @@
+---
+name: harmony-sample-fetcher
+description: 根据任务ID获取鸿蒙应用样本的全部信息，包括样本元数据、代码结构、机检报告等
+---
+
+# Harmony Sample Fetcher
+
+根据任务ID获取鸿蒙应用样本的全部信息。
+
+## 触发条件
+
+当用户提供任务ID（如 "分析任务 TASK-001"）时使用此技能。
+
+## 使用流程
+
+1. **提取任务ID**: 从用户输入中提取任务ID
+2. **获取样本信息**: 调用 sample-store MCP 的 get_sample_info
+3. **获取代码结构**: 调用 sample-store MCP 的 get_code_tree
+4. **获取静态报告**: 调用 sample-store MCP 的 get_static_report
+5. **获取动态报告**: 调用 sample-store MCP 的 get_dynamic_report
+6. **获取流量报告**: 调用 sample-store MCP 的 get_traffic_report
+7. **汇总信息**: 将所有信息整理成结构化摘要
+
+## MCP 工具依赖
+
+- `sample-store/get_sample_info`
+- `sample-store/get_code_tree`
+- `sample-store/get_code_file`
+- `sample-store/get_static_report`
+- `sample-store/get_dynamic_report`
+- `sample-store/get_traffic_report`
+
+## 输出格式
+
+```markdown
+## 样本信息
+
+**任务ID**: {task_id}
+**包名**: {package_name}
+**版本**: {version}
+**签名**: {signature}
+
+## 代码结构
+
+{code_tree_summary}
+
+## 机检报告摘要
+
+### 静态报告
+- 权限: {permissions_count} 项
+- 敏感API: {apis_count} 个
+- 风险项: {risks_count} 个
+
+### 动态报告
+- 行为记录: {behaviors_count} 条
+- 文件操作: {file_ops_count} 次
+- 网络请求: {network_reqs_count} 次
+
+### 流量报告
+- 域名: {domains_count} 个
+- 可疑活动: {suspicious_count} 条
+```
+
+## 示例
+
+**用户输入**: "分析任务 TASK-001"
+
+**执行流程**:
+1. 调用 get_sample_info("TASK-001")
+2. 调用 get_code_tree("TASK-001")
+3. 调用 get_static_report("TASK-001")
+4. 调用 get_dynamic_report("TASK-001")
+5. 调用 get_traffic_report("TASK-001")
+6. 汇总输出样本信息摘要

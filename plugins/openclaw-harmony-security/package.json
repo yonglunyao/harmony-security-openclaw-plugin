@@ -1,0 +1,9 @@
+{
+  "name": "openclaw-harmony-security",
+  "version": "0.1.0",
+  "description": "鸿蒙应用安全分析 OpenClaw Plugin",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  }
+}

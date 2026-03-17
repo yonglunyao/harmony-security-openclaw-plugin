@@ -1,0 +1,36 @@
+---
+name: harmony-report-generator
+description: 生成鸿蒙应用安全分析报告，汇总所有分析结果
+---
+
+# Harmony Report Generator
+
+生成鸿蒙应用安全分析报告，汇总所有分析结果。
+
+## 报告结构
+
+```markdown
+# 鸿蒙应用安全分析报告
+
+## 基本信息
+| 字段 | 值 |
+|------|-----|
+| 任务ID | {task_id} |
+| 包名 | {package_name} |
+
+## 恶意结论
+**判定结果**: {malicious | suspicious | benign}
+
+## 风险摘要
+| 风险类别 | 风险等级 | 简述 |
+|----------|----------|------|
+| 恶意行为 | {level} | {summary} |
+
+## 存疑点清单
+| 序号 | 存疑点描述 | 建议人工分析方向 |
+|------|-----------|-----------------|
+```
+
+## MCP 工具依赖
+
+- `report-store/save_report`

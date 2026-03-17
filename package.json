@@ -1,0 +1,25 @@
+{
+  "name": "harmony-security-analysis",
+  "version": "0.1.0",
+  "description": "鸿蒙应用安全分析 Agent 系统",
+  "author": "Yonglun Yao <yonglunyao@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest",
+    "mcp:sample-store": "node dist/mcp/sample-store/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}

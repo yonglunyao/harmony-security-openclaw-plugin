@@ -1,0 +1,32 @@
+---
+name: harmony-code-analyzer
+description: 分析鸿蒙应用逆向后的JS代码，识别风险模式和可疑代码逻辑
+---
+
+# Harmony Code Analyzer
+
+分析鸿蒙应用逆向后的JS代码，识别风险模式和可疑代码逻辑。
+
+## 触发条件
+
+当需要分析应用代码时使用此技能。
+
+## 分析能力
+
+### 敏感API调用检测
+- @ohos.telephony.sms - 短信相关API
+- @ohos.contacts - 联系人API
+- @ohos.net.http - 网络请求API
+- @ohos.data.fileIo - 文件操作API
+
+### 可疑代码模式
+- 动态代码执行
+- 反射调用
+- 加密/解密操作
+- Base64编码内容
+- 硬编码密钥/URL
+
+## MCP 工具依赖
+
+- `sample-store/get_code_tree`
+- `sample-store/get_code_file`

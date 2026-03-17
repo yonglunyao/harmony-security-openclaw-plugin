@@ -1,0 +1,16 @@
+---
+name: harmony-sdk-analyzer
+description: 第三方SDK/组件识别与分析，评估SDK安全风险
+---
+
+# Harmony SDK Analyzer
+
+识别应用中的第三方SDK和组件，评估其安全风险。
+
+## 常见SDK库
+
+| SDK | 包名/特征 | 风险等级 |
+|-----|----------|---------|
+| 穿山甲 | com.bytedance | Medium |
+| 友盟 | com.umeng | Low |
+| 热云 | com.reyun | Low |

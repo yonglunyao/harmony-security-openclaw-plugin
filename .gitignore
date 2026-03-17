@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Data directories (运行时生成)
+data/samples/
+data/knowledge/
+data/reports/
+data/*.db
+data/*.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PID files
+.pids/
+*.pid
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OpenClaw specific
+workspace/
+temp-claude/
+
+# OS files
+Thumbs.db
+.DS_Store
+*.bak
+*.backup
+
+# MCP Server runtime
+*.pid
+*.socket
+
+# Report outputs
+reports/*.md
+!reports/.gitkeep

@@ -1,0 +1,36 @@
+---
+name: harmony-report-reader
+description: 解读鸿蒙应用机检报告（静态、动态、流量），提取关键风险信息
+---
+
+# Harmony Report Reader
+
+解读鸿蒙应用机检报告，提取关键风险信息。
+
+## 触发条件
+
+当需要分析静态报告、动态报告或流量报告时使用此技能。
+
+## 分析能力
+
+### 静态报告分析
+- 权限申请合理性判断
+- 敏感API使用识别
+- 组件安全评估
+- 签名信息验证
+
+### 动态报告分析
+- 恶意行为识别
+- 敏感操作检测
+- 异常行为发现
+
+### 流量报告分析
+- 可疑域名识别
+- 异常通信检测
+- 数据外泄风险评估
+
+## MCP 工具依赖
+
+- `sample-store/get_static_report`
+- `sample-store/get_dynamic_report`
+- `sample-store/get_traffic_report`

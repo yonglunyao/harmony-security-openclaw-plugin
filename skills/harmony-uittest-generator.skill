@@ -1,0 +1,12 @@
+---
+name: harmony-uittest-generator
+description: 为鸿蒙应用生成UI测试代码
+---
+
+# Harmony UITest Generator
+
+为鸿蒙应用生成基于 @kit.TestKit 的 UI 测试代码。
+
+## 触发条件
+
+当需要为鸿蒙应用生成 UI 测试时使用此技能。
