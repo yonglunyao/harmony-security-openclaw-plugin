@@ -38,12 +38,13 @@
 │  └──────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────┘
           │             │             │
-          ▼             ▼             ▼
-    ┌──────────┐  ┌──────────┐  ┌──────────┐
-    │   MCP    │  │   MCP    │  │   MCP    │
-    │  Server  │  │  Server  │  │  Server  │
-    │ (样本)   │  │ (知识库) │  │ (报告)   │
-    └──────────┘  └──────────┘  └──────────┘
+          ▼             ▼             ▼             ▼
+    ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
+    │   MCP    │  │   MCP    │  │   MCP    │  │   MCP    │
+    │  Server  │  │  Server  │  │  Server  │  │  Server  │
+    │ (样本)   │  │ (知识库) │  │ (报告)   │  │ (联网搜索)│
+    │  stdio   │  │  stdio   │  │  stdio   │  │   HTTP   │
+    └──────────┘  └──────────┘  └──────────┘  └──────────┘
 ```
 
 ## 项目结构
@@ -192,6 +193,14 @@ openclaw plugins install ./openclaw-mcp-adapter
               "command": "node",
               "args": ["D:/workspace/harmony-analyse-system/dist/mcp/report-store/index.js"],
               "env": {"REPORT_OUTPUT_PATH": "D:/workspace/harmony-analyse-system/data/reports"}
+            },
+            {
+              "name": "aisearch-mcp-server",
+              "transport": "http",
+              "url": "https://qianfan.baidubce.com/v2/ai_search/mcp",
+              "headers": {
+                "Authorization": "Bearer YOUR_TOKEN_HERE"
+              }
             }
           ]
         }
@@ -245,6 +254,14 @@ openclaw plugins list
 |--------|------|------|
 | `report-store_save_report` | 保存分析报告 | `task_id`, `report_content` |
 | `report-store_get_report` | 获取历史报告 | `task_id` |
+
+### aisearch-mcp-server (1个工具 - HTTP 传输)
+
+| 工具名 | 说明 | 参数 |
+|--------|------|------|
+| `aisearch-mcp-server_chatCompletions` | 百度千帆联网搜索和智能总结 | `query`, `model`(可选), 其他参数 |
+
+**说明**: 此 MCP Server 使用 HTTP 传输协议，直接连接百度千帆平台的 AI 搜索服务。Agent 可以通过此工具进行联网搜索，获取实时信息并使用大模型进行总结回复。
 
 ## Skills 列表
 

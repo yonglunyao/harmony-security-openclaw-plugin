@@ -1893,6 +1893,13 @@ git commit -m "feat: add OpenClaw harmony-security plugin"
     "report-store": {
       "command": "node",
       "args": ["dist/mcp/report-store/index.js"]
+    },
+    "aisearch-mcp-server": {
+      "transport": "http",
+      "url": "https://qianfan.baidubce.com/v2/ai_search/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN_HERE"
+      }
     }
   }
 }
@@ -2080,12 +2087,13 @@ git commit -m "test: add integration test framework"
   - [x] harmony-malware-detector Skill
   - [x] harmony-permission-analyzer Skill
   - [x] harmony-sdk-analyzer Skill
+  - [x] aisearch-mcp-server (HTTP 传输) - 联网搜索支持
 - [x] Phase 5: 报告生成
   - [x] report-store MCP Server
   - [x] harmony-report-generator Skill
 - [x] Phase 6: OpenClaw Plugin 集成
   - [x] Plugin 代码
-  - [x] 配置文件
+  - [x] 配置文件 (含 HTTP MCP Server)
   - [x] 启动/停止脚本
   - [x] 集成测试框架
 
