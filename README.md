@@ -8,16 +8,16 @@
 - **📊 多维度检测** - 恶意行为识别、权限滥用检测、第三方组件分析
 - **🧠 HATL 知识库** - 基于鸿蒙攻击技术知识库进行智能匹配
 - **💡 存疑点标记** - Agent 无法确定的问题输出存疑清单，由人工深入分析
-- **🔌 多工作台支持** - 支持 OpenClaw Dashboard、Claude Code CLI、Web 界面
+- **🔌 多工作台支持** - 支持 OpenClaw Gateway、Telegram、飞书等渠道
+- **🔗 MCP Adapter 集成** - 自动管理 MCP Servers，无需手动启动
 
 ## 系统架构
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                          人工工作台层                                    │
+│                          用户交互层                                      │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
-│  │ OpenClaw     │  │ Claude Code  │  │ 自建 Web     │                   │
-│  │ Dashboard    │  │ CLI          │  │ Interface    │                   │
+│  │  Telegram    │  │    飞书      │  │   Dashboard  │                   │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘                   │
 └─────────┼─────────────────┼─────────────────┼───────────────────────────┘
           │                 │                 │
@@ -26,16 +26,24 @@
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                     OpenClaw Gateway (Agent 编排)                        │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │              HarmonyOS Security Analysis Plugin                  │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
+│  │              MCP Adapter Plugin (工具桥接)                       │   │
+│  │  ┌───────────┐  ┌───────────┐  ┌───────────┐                    │   │
+│  │  │ MCP Client│  │ MCP Client│  │ MCP Client│                    │   │
+│  │  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘                    │   │
+│  └────────┼─────────────┼─────────────┼────────────────────────────┘   │
+│           │             │             │                                 │
+│  ┌────────┼─────────────┼─────────────┼────────────────────────────┐   │
+│  │     HarmonyOS Security Analysis Plugin                          │   │
+│  │     (上下文注入、任务编排)                                        │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────┘
-                            │
-          ┌─────────────────┼─────────────────┐
-          ▼                 ▼                 ▼
-┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│   Skills 层      │ │   MCP Tools      │ │   知识库层       │
-│  (分析逻辑编排)   │ │   (数据访问)      │ │  (HATL/案例)     │
-└──────────────────┘ └──────────────────┘ └──────────────────┘
+          │             │             │
+          ▼             ▼             ▼
+    ┌──────────┐  ┌──────────┐  ┌──────────┐
+    │   MCP    │  │   MCP    │  │   MCP    │
+    │  Server  │  │  Server  │  │  Server  │
+    │ (样本)   │  │ (知识库) │  │ (报告)   │
+    └──────────┘  └──────────┘  └──────────┘
 ```
 
 ## 项目结构
@@ -66,8 +74,8 @@ harmony-analyse-system/
 │       ├── index.js                # 插件实现
 │       └── package.json
 ├── scripts/                        # 工具脚本
-│   ├── start-mcp-servers.sh        # 启动所有 MCP 服务
-│   └── stop-mcp-servers.sh         # 停止所有 MCP 服务
+│   ├── install-openclaw-plugin.sh  # 一键安装脚本
+│   └── install-openclaw-plugin.bat
 ├── tests/                          # 测试文件
 │   └── integration/
 │       └── analysis-flow.test.ts
@@ -78,8 +86,7 @@ harmony-analyse-system/
 ├── docs/                           # 文档
 │   └── plans/                      # 设计文档
 ├── dist/                           # 编译输出
-├── CLAUDE.md                       # Claude Code 指南
-└── openclaw.config.json            # OpenClaw 配置
+└── CLAUDE.md                       # Claude Code 指南
 ```
 
 ## 快速开始
@@ -88,6 +95,8 @@ harmony-analyse-system/
 
 - Node.js >= 18.0.0
 - npm 或 yarn
+- OpenClaw CLI: `npm install -g @openclaw/cli`
+- jq (可选，用于自动配置): Linux/macOS: `sudo apt install jq` 或 `brew install jq`
 
 ### 安装
 
@@ -103,105 +112,124 @@ npm install
 npm run build
 ```
 
-### 配置
+### 一键安装（推荐）
 
+使用自动安装脚本，会自动：
+1. 安装 OpenClaw 插件
+2. 克隆并安装 MCP Adapter
+3. 配置 MCP Servers
+4. 启动 Gateway
+
+**Windows:**
 ```bash
-# 复制环境变量模板
-cp .env.example .env
-
-# 编辑 .env 文件，配置实际参数
-# vim .env
+scripts\install-openclaw-plugin.bat
 ```
 
-### 安装 OpenClaw 插件
-
-本项目包含 OpenClaw Gateway 插件，用于在 Agent 分析任务时自动注入上下文。
-
-**方式一：使用一键安装脚本（推荐）**
-
+**Linux/macOS:**
 ```bash
-# Windows
-scripts\install-openclaw-plugin.bat
-
-# Linux/macOS
 chmod +x scripts/install-openclaw-plugin.sh
 ./scripts/install-openclaw-plugin.sh
 ```
 
-**方式二：手动安装**
+### 手动安装
+
+如果自动安装脚本不适用，可以手动安装：
 
 ```bash
-# 1. 确保已安装 OpenClaw CLI
-npm install -g @openclaw/cli
-
-# 2. 安装插件
+# 1. 安装 Harmony Security 插件
 openclaw plugins install ./plugins/openclaw-harmony-security
-
-# 3. 启用插件
 openclaw plugins enable harmony-security
 
+# 2. 克隆并安装 MCP Adapter
+cd ..
+git clone https://github.com/androidStern-personal/openclaw-mcp-adapter.git
+openclaw plugins install ./openclaw-mcp-adapter
+
+# 3. 配置 MCP Servers（添加到 ~/.openclaw/openclaw.json）
+```
+
+**MCP Servers 配置示例:**
+```json
+{
+  "plugins": {
+    "entries": {
+      "openclaw-mcp-adapter": {
+        "enabled": true,
+        "config": {
+          "servers": [
+            {
+              "name": "sample-store",
+              "transport": "stdio",
+              "command": "node",
+              "args": ["D:/workspace/harmony-analyse-system/dist/mcp/sample-store/index.js"],
+              "env": {"SAMPLE_STORE_PATH": "D:/workspace/harmony-analyse-system/data/samples"}
+            },
+            {
+              "name": "knowledge-base",
+              "transport": "stdio",
+              "command": "node",
+              "args": ["D:/workspace/harmony-analyse-system/dist/mcp/knowledge-base/index.js"],
+              "env": {"KNOWLEDGE_BASE_PATH": "D:/workspace/harmony-analyse-system/data/knowledge"}
+            },
+            {
+              "name": "report-store",
+              "transport": "stdio",
+              "command": "node",
+              "args": ["D:/workspace/harmony-analyse-system/dist/mcp/report-store/index.js"],
+              "env": {"REPORT_OUTPUT_PATH": "D:/workspace/harmony-analyse-system/data/reports"}
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+```bash
 # 4. 重启 Gateway
 openclaw gateway stop
 openclaw gateway
 ```
 
-**验证插件安装**
+### 验证安装
 
 ```bash
-# 查看插件列表
+# 检查插件状态
 openclaw plugins list
 
 # 应该看到：
 # │ HarmonyOS Security Analysis │ harmony-security │ loaded │ ... │
-```
-
-### 启动 MCP Servers
-
-**重要说明**: MCP Servers 需要独立启动，OpenClaw Gateway 不会自动管理它们。
-
-```bash
-# 批量启动所有 MCP Servers
-./scripts/start-mcp-servers.sh
-
-# 或单独启动
-node dist/mcp/sample-store/index.js
-node dist/mcp/knowledge-base/index.js
-node dist/mcp/report-store/index.js
-```
-
-**注意**: `openclaw.config.json` 仅作为插件配置参考，请勿将其内容合并到 `~/.openclaw/openclaw.json` 中。OpenClaw 目前不支持在配置文件中直接配置 MCP Servers。
-
-### 停止 MCP Servers
-
-```bash
-./scripts/stop-mcp-servers.sh
+# │ MCP Adapter                │ openclaw-mcp-adapter │ loaded │ ... │
 ```
 
 ## MCP 工具列表
 
+安装成功后，Agent 可以直接调用以下工具：
+
 ### sample-store (6个工具)
 
-| 工具名 | 说明 |
-|--------|------|
-| `get_sample_info` | 获取样本基本信息（包名、版本、签名等） |
-| `get_code_tree` | 获取逆向代码目录树结构 |
-| `get_code_file` | 读取指定代码文件内容 |
-| `get_static_report` | 获取静态扫描报告 |
-| `get_dynamic_report` | 获取动态沙箱报告 |
-| `get_traffic_report` | 获取流量分析报告 |
+| 工具名 | 说明 | 参数 |
+|--------|------|------|
+| `sample-store_get_sample_info` | 获取样本基本信息 | `task_id` |
+| `sample-store_get_code_tree` | 获取代码目录树 | `task_id` |
+| `sample-store_get_code_file` | 读取代码文件内容 | `task_id`, `file_path` |
+| `sample-store_get_static_report` | 获取静态扫描报告 | `task_id` |
+| `sample-store_get_dynamic_report` | 获取动态沙箱报告 | `task_id` |
+| `sample-store_get_traffic_report` | 获取流量分析报告 | `task_id` |
 
 ### knowledge-base (1个工具)
 
-| 工具名 | 说明 |
-|--------|------|
-| `query_hatl` | 查询 HATL 攻击技术知识库 |
+| 工具名 | 说明 | 参数 |
+|--------|------|------|
+| `knowledge-base_query_hatl` | 查询 HATL 攻击技术知识库 | `query`, `category`(可选) |
 
 ### report-store (2个工具)
 
-| 工具名 | 说明 |
-|--------|------|
-| `save_report` | 保存分析报告 |
-| `get_report` | 获取历史报告 |
+| 工具名 | 说明 | 参数 |
+|--------|------|------|
+| `report-store_save_report` | 保存分析报告 | `task_id`, `report_content` |
+| `report-store_get_report` | 获取历史报告 | `task_id` |
 
 ## Skills 列表
 
@@ -215,28 +243,31 @@ node dist/mcp/report-store/index.js
 | `harmony-sdk-analyzer` | 第三方SDK风险分析 |
 | `harmony-report-generator` | 生成安全分析报告 |
 
-## 使用示例
+## 使用方式
 
-### Claude Code CLI
+### 通过 OpenClaw Gateway
 
 ```bash
-# 1. 启动 MCP Servers
-./scripts/start-mcp-servers.sh
+# 1. 确保 Gateway 正在运行
+openclaw health
 
+# 2. 通过连接的渠道发送消息
+# Telegram: 发送消息给配置的 Bot
+# 飞书: 在配置的群组中 @机器人
+# Dashboard: 访问 http://localhost:18789
+
+# 3. 示例对话
+# 用户: "分析任务 TASK-2026-001"
+# Agent: [自动调用 MCP 工具] 获取样本信息 → 读取报告 → 分析代码 → 生成报告
+```
+
+### 通过 Claude Code CLI
+
+```bash
+# 1. 确保 Gateway 正在运行且 MCP Adapter 已配置
 # 2. 在 Claude Code 中对话
 # "分析任务 TASK-001"
 # Agent 将自动调用 MCP 工具获取样本信息并进行分析
-```
-
-### OpenClaw Gateway
-
-```bash
-# 1. 配置 openclaw.config.json 到你的 Gateway
-
-# 2. 启动 Gateway
-
-# 3. 发送消息分析任务
-# "分析任务 TASK-001"
 ```
 
 ## 开发指南
@@ -250,6 +281,9 @@ npm test
 
 # 运行单个测试
 npm test -- tests/mcp/sample-store.test.ts
+
+# 重新构建（修改代码后）
+npm run build
 ```
 
 ## 分析流程
@@ -258,9 +292,9 @@ npm test -- tests/mcp/sample-store.test.ts
 用户提供任务ID
     ↓
 Phase 1: 信息收集
-    ├─ 获取样本元数据
-    ├─ 获取代码目录树
-    └─ 获取机检报告
+    ├─ 调用 sample-store_get_sample_info
+    ├─ 调用 sample-store_get_code_tree
+    └─ 调用 sample-store_get_static_report
     ↓
 Phase 2: 报告解读
     ├─ 静态报告分析
@@ -268,16 +302,18 @@ Phase 2: 报告解读
     └─ 流量报告分析
     ↓
 Phase 3: 代码分析
+    ├─ 调用 sample-store_get_code_file
     └─ 识别风险模式和可疑代码
     ↓
 Phase 4: 风险判定
+    ├─ 调用 knowledge-base_query_hatl
     ├─ 恶意行为检测
     ├─ 权限滥用分析
     └─ SDK 风险评估
     ↓
 Phase 5: 报告生成
     ├─ 汇总分析结果
-    ├─ 生成风险摘要
+    ├─ 调用 report-store_save_report
     └─ 输出存疑点清单
     ↓
 Phase 6: 人工审核
@@ -309,11 +345,43 @@ Phase 6: 人工审核
 |------|-----------|-----------------|
 ```
 
+## 故障排除
+
+### 插件未加载
+
+```bash
+# 检查插件状态
+openclaw plugins list
+
+# 检查 Gateway 日志
+# Linux/macOS:
+tail -f /tmp/openclaw-gateway.log
+# Windows:
+type %TEMP%\openclaw-gateway.log
+```
+
+### MCP 工具不可用
+
+1. 确认项目已构建：`npm run build`
+2. 确认路径配置正确（使用正斜杠 `/`）
+3. 重启 Gateway：`openclaw gateway stop && openclaw gateway`
+
+### MCP Adapter 连接失败
+
+```bash
+# 手动测试 MCP Server
+node dist/mcp/knowledge-base/index.js
+
+# 应该输出：Knowledge Base MCP Server running on stdio
+# 然后等待输入（Ctrl+C 退出）
+```
+
 ## 文档
 
 - [设计方案](./docs/plans/2026-03-17-harmony-security-analysis-system-design.md)
 - [实现计划](./docs/plans/2026-03-17-harmony-security-analysis-implementation.md)
 - [CLAUDE.md](./CLAUDE.md) - Claude Code 开发指南
+- [MCP Adapter](https://github.com/androidStern-personal/openclaw-mcp-adapter) - MCP 工具桥接插件
 
 ## 许可证
 
