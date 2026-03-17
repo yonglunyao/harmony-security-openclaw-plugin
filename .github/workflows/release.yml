@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: ${{ github.ref_name }}
+        body: |
+          ## Harmony Security OpenClaw Plugin ${{ github.ref_name }}
+
+          ### 功能特性
+          - MCP Servers: sample-store, knowledge-base, report-store
+          - Skills: 8 个鸿蒙安全分析技能
+          - OpenClaw Gateway 集成
+
+          ### 安装
+          ```bash
+          npm install
+          npm run build
+          ```
+
+          ### 使用
+          配置 OpenClaw Gateway 并启动 MCP Servers
+
+          ### 更新日志
+          请查看 [CHANGELOG.md](./CHANGELOG.md)
+        draft: false
+        prerelease: false
