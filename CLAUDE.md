@@ -190,3 +190,63 @@ export class XxxServer {
 - [AI 工具使用规范](./AI-GUIDELINES.md)
 - [设计方案](./docs/plans/2026-03-17-harmony-security-analysis-system-design.md)
 - [实现计划](./docs/plans/2026-03-17-harmony-security-analysis-implementation.md)
+
+---
+
+# 💻 代码规范
+
+## 语言使用规则
+
+| 类型 | 语言 | 说明 |
+|-----|------|------|
+| 代码 | 英文 | 变量名、函数名、注释全部使用英文 |
+| 文档 | 中文 | README、说明文档使用中文 |
+| 提交信息 | 英文 | git commit message 使用英文 |
+| 用户界面 | 中文 | 面向用户的消息使用中文 |
+| 脚本 | 英文 | bat/sh 脚本注释和消息使用英文 |
+
+## 代码注释规范
+
+```typescript
+// ✅ Correct - English comments
+function calculateRiskScore(attackChain: AttackChain): number {
+    // Calculate risk score based on attack severity
+    return attackChain.reduce((score, tactic) => score + tactic.severity, 0);
+}
+
+// ❌ Wrong - Chinese comments
+function calculateRiskScore(attackChain: AttackChain): number {
+    // 计算风险分数
+    return attackChain.reduce((score, tactic) => score + tactic.severity, 0);
+}
+```
+
+## 脚本注释规范
+
+```batch
+@echo off
+REM OpenClaw Harmony Security Plugin Installation Script
+
+REM Install dependencies first
+echo Installing dependencies...
+call npm install
+```
+
+## 文件命名规范
+
+- 使用英文小写字母和连字符
+- 示例：`attack-chain-builder.ts`, `mitre-query-handler.ts`
+
+## 安装脚本规范
+
+所有安装脚本必须先安装依赖：
+
+```batch
+REM Always install dependencies first
+call npm install
+if errorlevel 1 (
+    echo [ERROR] Failed to install dependencies
+    pause
+    exit /b 1
+)
+```
