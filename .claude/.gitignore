@@ -1,0 +1,5 @@
+# Ignore worktrees subdirectory
+worktrees/
+
+# Keep other files in .claude/ (if any)
+!.gitignore

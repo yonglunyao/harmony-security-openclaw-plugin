@@ -53,6 +53,10 @@ temp/
 workspace/
 temp-claude/
 
+# Claude Code worktrees (exclude subdirectories, track main)
+.claude/worktrees/
+!.claude/
+
 # OS files
 Thumbs.db
 .DS_Store
